@@ -12,6 +12,8 @@ class MyTextFormViewState extends StatelessWidget {
 
   MyTextFormViewState(this._memo);
 
+  final mycontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -25,11 +27,12 @@ class MyTextFormViewState extends StatelessWidget {
                 decoration: new InputDecoration(
                     hintText: "write here"
                 ),
-                onChanged: (text) {
-                  Firestore.instance.collection('message').document().setData({
-                    'message': text,
-                  });
-                }
+                controller: mycontroller,
+                //onChanged: (text) {
+//                  Firestore.instance.collection('message').document().setData({
+//                    'message': text,
+//                  });
+                //}
 
             ),
 
@@ -45,6 +48,10 @@ class MyTextFormViewState extends StatelessWidget {
                   color: Colors.lightBlue,
                   textColor: Colors.white,
                   onPressed: () {
+                    Firestore.instance.collection('message').document().setData({
+                      'message': mycontroller.text,
+                    });
+
                     Navigator.pop(context);
                   }),
             ),

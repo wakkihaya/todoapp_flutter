@@ -8,7 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 
 //todoアプリの流れとしては、入力した情報(state.dart)をmain.dartにてmarkdown方式で
-//羅列する。データはstreamかfirebase
+//羅列する。データはfirebaseかsharedpr
 
 void main() => runApp(MyApp());
 
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     //  final wordPair = WordPair.random();
     return MaterialApp(
-      title :'Todo',
+      title :'To do Application',
 //      home: RandomWords(),
         home:Todo(),
       // child:Text(wordPair.asPascalCase),
@@ -41,7 +41,7 @@ class TodoSentence extends State<Todo>{
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title:Text('Todo'),
+        title:Text('To do Application'),
       ),
     body: _list(),
       //todoにいくボタン
@@ -82,26 +82,51 @@ class TodoSentence extends State<Todo>{
     final DocumentSnapshot document = snapshot.data.documents[i];
     return ListTile(
       title: Text(document["message"]??'<No meddage retrieved>'),
-    );
-    }
-
-    //コンパイルが通りません！
-
-
-    //memoを削除する
-//    return new Dismissible(
-////    onDismissed: (direction){
-////    document.removeAt(i);
-////
-////    Scaffold.of(context).showSnackBar(
-////    new SnackBar(content: new Text("Memo dismissed"))
-////    );
-////    },
-////    );
+      onTap: ()=> _promptRemoveTodoItem(i,document["message"]),
+      // leading: new IconButton(icon: Icon(Icons.delete), onPressed:_delete(i)),
     );
 
     }
+    );
+        }
+    }
+    );
+    }
 
+    //削除機能を追加
+    //i番目を削除
+  void _promptRemoveTodoItem(int i,String doc){
+    showDialog(context: context,
+    builder: (BuildContext context){
+      return new AlertDialog(
+        title : new Text("Mark" +doc+ "as done"),
+        actions: <Widget>[
+          new FlatButton(onPressed: ()=>Navigator.of(context).pop,
+              child: new Text("cancel")
+          ),
+          new FlatButton(
+              onPressed:(){
+          _removeItem(doc);
+          Navigator.of(context).pop();
+          },
+              child: new Text("Delete")
+          )
+        ],
+      );
+    }
+    );
+  }
+
+  //削除画面がうまくできない
+  void _removeItem(String doc){
+    Firestore.instance.collection("message").document(doc).delete();
+  }
+
+
+
+  }
+
+  //memoを削除する
 //        padding: const EdgeInsets.all(16.0),
 //        itemCount: memos.length,
 //        itemBuilder: (context,i){
@@ -117,15 +142,6 @@ class TodoSentence extends State<Todo>{
 //              );
 //            },
 //          );
-        }
-
-    );
-
-  }
-
-
-
-}
 
 
 
