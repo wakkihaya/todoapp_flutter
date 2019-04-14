@@ -34,33 +34,35 @@ class Todo extends StatefulWidget {
 }
 
 class TodoSentence extends State<Todo>{
-  List<Memo> memos = new List<Memo>();
+  //List<Memo> memos = new List<Memo>();
 
+  List<String> todoitem = new List<String>();
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title:Text('To do Application'),
+        title: Text('To do Application'),
       ),
-    body: _list(),
+      body: _list(),
       //todoにいくボタン
-      floatingActionButton: new FloatingActionButton(
-          child:new Text('To do をかく'),
-          onPressed: (){
-
+      floatingActionButton: new FloatingActionButton.extended(
+          icon: Icon(Icons.add_circle_outline),
+          label: Text("To do"),
+          onPressed: () {
             Memo newMemo = new Memo('');
-
             //pathをテキスト入力画面
             Navigator.push(context,
-           new MaterialPageRoute<Null>(
-              settings: const RouteSettings(name: "/state"),
-              builder:(BuildContext context) => new MyTextFormViewState(newMemo)
-           ));
+                new MaterialPageRoute<Null>(
+                    settings: const RouteSettings(name: "/state"),
+                    builder: (BuildContext context) =>
+                    new MyTextFormViewState(newMemo)
+                ));
           }
       ),
     );
   }
+
 
   @override
   Widget _list(){
@@ -80,9 +82,12 @@ class TodoSentence extends State<Todo>{
     itemCount: mcount,
     itemBuilder: (context,i){
     final DocumentSnapshot document = snapshot.data.documents[i];
+      todoitem.add(document["message"]);//firebaseの値をmemoに代入
+
     return ListTile(
-      title: Text(document["message"]??'<No meddage retrieved>'),
-      onTap: ()=> _promptRemoveTodoItem(i,document["message"]),
+      title: Text(todoitem[i] ??'<No meddage retrieved>'),
+      leading: const Icon(Icons.delete),
+      onTap: ()=> _promptRemoveTodoItem(i,todoitem),
       // leading: new IconButton(icon: Icon(Icons.delete), onPressed:_delete(i)),
     );
 
@@ -95,18 +100,19 @@ class TodoSentence extends State<Todo>{
 
     //削除機能を追加
     //i番目を削除
-  void _promptRemoveTodoItem(int i,String doc){
+  void _promptRemoveTodoItem(int i, List<String> todoitem,){
     showDialog(context: context,
     builder: (BuildContext context){
       return new AlertDialog(
-        title : new Text("Mark" +doc+ "as done"),
+        title :Text("Mark" +todoitem[i] + "as done"),
         actions: <Widget>[
-          new FlatButton(onPressed: ()=>Navigator.of(context).pop,
-              child: new Text("cancel")
+          new FlatButton(
+              child: new Text("cancel"),
+            onPressed: ()=>Navigator.of(context).pop,
           ),
           new FlatButton(
               onPressed:(){
-          _removeItem(doc);
+          _removeItem(i,todoitem);
           Navigator.of(context).pop();
           },
               child: new Text("Delete")
@@ -118,8 +124,11 @@ class TodoSentence extends State<Todo>{
   }
 
   //削除画面がうまくできない
-  void _removeItem(String doc){
-    Firestore.instance.collection("message").document(doc).delete();
+  void _removeItem(int i , List<String> todoitem){
+    Firestore.instance.collection("message").document(todoitem[i]).delete();
+    setState(() =>
+      todoitem.removeAt(i)
+    );
   }
 
 

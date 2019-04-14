@@ -27,6 +27,10 @@ class MyTextFormViewState extends StatelessWidget {
                 decoration: new InputDecoration(
                     hintText: "write here"
                 ),
+                style:
+                new TextStyle(
+                  fontSize:40.0,
+                ),
                 controller: mycontroller,
                 //onChanged: (text) {
 //                  Firestore.instance.collection('message').document().setData({
@@ -43,9 +47,16 @@ class MyTextFormViewState extends StatelessWidget {
               margin: const EdgeInsets.all(10.0),
               height: 75.0,
               width: 150.0,
+
               child: new FlatButton(
-                  child: new Text('save memo'),
+                  child: new Text(
+                      'save memo',
+                  style: new TextStyle(
+                    fontSize: 20
+                  ),
+                  ),
                   color: Colors.lightBlue,
+
                   textColor: Colors.white,
                   onPressed: () {
                     Firestore.instance.collection('message').document().setData({
